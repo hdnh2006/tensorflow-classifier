@@ -6,6 +6,36 @@ __pycache__/
 # C extensions
 *.so
 
+# Repo-specific GitIgnore ----------------------------------------------------------------------------------------------
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.tif
+*.tiff
+*.heic
+*.JPG
+*.JPEG
+*.PNG
+*.BMP
+*.TIF
+*.TIFF
+*.HEIC
+*.data
+*.json
+*.cfg
+*.zip
+*.h5
+*.pb
+*.tar.gz
+*.crdownload
+*.json
+*.csv
+wandb
+runs
+
+
+
 # Distribution / packaging
 .Python
 build/
