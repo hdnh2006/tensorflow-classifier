@@ -13,7 +13,7 @@ import os
 import tensorflow.compat.v2 as tf
 import time
 import cv2
-
+import json
 
 def check_file(file):
     """
@@ -218,3 +218,31 @@ def annotate(img, text, txt_color=(255, 255, 255)):
     for line in text.split('\n'):
         cv2.putText(img, line.strip(), (start_x, start_y), font, font_scale, txt_color, thickness)
         start_y += int(1.5 * cv2.getTextSize(line, font, font_scale, thickness)[0][1])  # 1.5 is the line spacing
+
+
+def update_options(request):
+    """
+    Args:
+    - request: Flask request object
+    
+    Returns:
+    - source: URL string
+    - save_txt: Boolean indicating whether to save text or not
+    """
+    
+    # GET parameters
+    if request.method == 'GET':
+        #all_args = request.args # TODO: get all parameters in one line
+        source = request.args.get('url')
+        save_txt = request.args.get('save_txt')
+
+    
+    # POST parameters
+    if request.method == 'POST':
+        json_data = request.get_json() #Get the POSTed json
+        json_data = json.dumps(json_data) # API receive a dictionary, so I have to do this to convert to string
+        dict_data = json.loads(json_data) # Convert json to dictionary 
+        source = dict_data['url']
+        save_txt = dict_data.get('save_txt', None)        
+    
+    return source, save_txt

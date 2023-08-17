@@ -1,6 +1,18 @@
-#tensorflow-cpu==2.5.*
-tensorflow_hub==0.11.0
-opencv-python==4.5.1.48
+# Usage: pip install -r requirements.txt
+
+# Data libraries
+pandas==1.2.5
 numpy==1.19.3   
 
-# wandb
+# ML libraries
+tensorflow-cpu==2.5.*
+opencv-python==4.5.1.48
+
+# Track experiments
+wandb
+
+# Deployment
+Flask==2.3.2
+
+# editor
+# spyder-kernels==2.4.*
