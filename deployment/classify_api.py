@@ -229,7 +229,7 @@ def parse_opt():
 if __name__ == '__main__':
     opt = parse_opt()
     
-    session = wandb.init()
+    session = wandb.init('classifier-deployment')
     
     # Load model
     device = select_device(opt.device)
