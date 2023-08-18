@@ -57,7 +57,6 @@ def run(opt):
     - source (str or Path): Path to the image source.
     - labels (str or Path): Path to the labels.
     - imgsz (int): Image size for inference.
-    - device (str): Device for inference (e.g., 'cpu', '0', '0,1,2,3').
     - view_img (bool): Display the results.
     - save_labels (bool): Save results to text files.
     - nosave (bool): Do not save images.
@@ -72,7 +71,6 @@ def run(opt):
     source=opt.source
     labels=opt.labels
     imgsz=opt.imgsz
-    device=opt.device
     view_img=opt.view_img
     save_labels=opt.save_labels
     nosave=opt.nosave
