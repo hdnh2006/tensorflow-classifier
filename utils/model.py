@@ -11,8 +11,10 @@ import tensorflow as tf
 import wandb
 import logging
 import os
+from pathlib import Path
 
-def load_model(path='hdnh2006/bird_classifier/model_w5cxp2z2:v0'):
+
+def load_model(wandb_session, path='hdnh2006/bird_classifier/model_w5cxp2z2:v0'):
     """
     Load a TensorFlow model from a given path or from W&B artifacts.
     
@@ -36,10 +38,15 @@ def load_model(path='hdnh2006/bird_classifier/model_w5cxp2z2:v0'):
     if not os.path.exists(path):
         try:
             logging.info("Path doesn't exist locally. Trying to fetch from W&B artifacts.")
-            run = wandb.init()
-            artifact = run.use_artifact(path, type='model')
-            artifact_dir = artifact.download()
-            logging.info(f"Artifact downloaded to {artifact_dir}.")
+            artifact = wandb_session.use_artifact(path, type='model')
+            if not os.path.exists(artifact.file()):
+                artifact_dir = artifact.download()
+                logging.info(f"Artifact downloaded to {artifact_dir}.")
+            else:
+                logging.info(f'Artifact founded locally in {artifact.file()}.')
+                artifact_dir = artifact.file()
+                artifact_dir = str(Path(artifact_dir).parents[0])
+            
         except Exception as e:
             logging.error(f"Error fetching model artifact from W&B. Error: {e}")
             raise Exception(f"Failed to fetch model from {path}.")

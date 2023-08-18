@@ -6,7 +6,7 @@ Created on Wed Aug 16 15:32:46 2023
 @author: henry
 
 Run classify inference on images
-Usage - sources:
+Usage:
     $ python classify.py
 
 
@@ -17,6 +17,7 @@ import argparse
 import os
 import sys
 import cv2
+import wandb
 import tensorflow as tf
 import pandas as pd
 from pathlib import Path
@@ -101,7 +102,7 @@ def run(
     labels = pd.read_csv(labels).name.to_numpy()
     
     with tf.device(device):
-        model = load_model(weights)
+        model = load_model(session, weights)
         
         
     # Dataloader
@@ -128,12 +129,8 @@ def run(
             p = Path(path)  # to Path
             save_path = str(save_dir / p.name)  # im.jpg
             txt_path = str(save_dir / 'labels' / p.stem) #+ ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
-
-            #s += '%gx%g ' % im.shape  # print string
-           
-
-            # Print results
-            #s += f"{', '.join(f'{names[j]} {prob[j]:.2f}' for j in top5i)}, "
+            
+            # Top results
             top3i = prob.numpy().argsort()[::-1][0:3] # top 3 indices
 
             # Write results
@@ -157,18 +154,17 @@ def run(
                     cv2.imwrite(save_path, im0)
 
         # Print time (inference-only)
-        logging.info(f'{s}{(t1-t0) * 1E3:.1f}ms')
+        logging.info(f'{s} {prob[top3i[0]]:.2f} {labels[top3i[0]]} {(t1-t0) * 1E3:.1f}ms') #filename + prob + class + time
 
     # Print results
     logging.info(f'Done. The entire process took ({time_synchronized() - init_time:.3f}s)')
     if save_labels or save_img:
-        #s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
-        logging.info(f"Results saved to {save_dir}{s}")
+        logging.info(f"Results saved to {save_dir}")
 
 
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default= 'hdnh2006/bird_classifier/model_w5cxp2z2:v0', help='model path of wandb or local')
+    parser.add_argument('--weights', type=str, default= 'hdnh2006/bird_classifier/model_w5cxp2z2:v0', help='model path of wandb or local path that contains .pb file')
     parser.add_argument('--source', type=str, default=ROOT / 'data/images', help='file/dir/URL/glob/screen/0(webcam)')
     parser.add_argument('--labels', type=str, default=ROOT / 'data/aiy_birds_V1_labelmap.csv', help='(optional) dataset.csv path or url')
     parser.add_argument('--imgsz', '--img', '--img-size', type=int, default=224, help='inference size h,w in case the model accept dynamic batch size')
@@ -176,7 +172,7 @@ def parse_opt():
     parser.add_argument('--view-img', action='store_true', help='show results')
     parser.add_argument('--save-labels', action='store_true', help='save results to *.txt')
     parser.add_argument('--nosave', action='store_true', help='do not save images')
-    parser.add_argument('--project', default=ROOT / 'runs/predict-cls', help='save results to project/name')
+    parser.add_argument('--project', default=ROOT / 'runs/predict', help='save results to project/name')
     parser.add_argument('--name', default='inference', help='save results to project/name')
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')    
     opt = parser.parse_args()
@@ -190,4 +186,6 @@ def main(opt):
 
 if __name__ == '__main__':
     opt = parse_opt()
+    session = wandb.init()
     main(opt)
+    session.finish()

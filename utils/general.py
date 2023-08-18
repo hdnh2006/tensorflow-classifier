@@ -15,7 +15,7 @@ import time
 import cv2
 import json
 
-def check_file(file):
+def check_file(file, raw_path: Path = '.'):
     """
     Check if a file exists locally. If not, download it from the provided URL.
     
@@ -38,7 +38,7 @@ def check_file(file):
     # If a URL is provided
     elif file.startswith(('http:/', 'https:/')):
         url = file
-        file = Path(urllib.parse.unquote(file).split('?')[0]).name  # Convert '%2F' to '/', and split "https://url.com/file.txt?auth"
+        file = str(raw_path / Path(urllib.parse.unquote(file).split('?')[0]).name)  # Convert '%2F' to '/', and split "https://url.com/file.txt?auth"
         
         # If the file from the URL exists locally
         if os.path.isfile(file):
@@ -116,11 +116,7 @@ def time_synchronized():
     # Check if GPU is available
     if tf.config.experimental.list_physical_devices('GPU'):
         with tf.device('/gpu:0'):
-            no_op = tf.no_op()
-
-        # Run a no-op operation to synchronize GPU and CPU
-        with tf.compat.v1.Session() as sess:
-            sess.run(no_op)
+            tf.no_op()
 
     return time.time()
 
@@ -227,14 +223,14 @@ def update_options(request):
     
     Returns:
     - source: URL string
-    - save_txt: Boolean indicating whether to save text or not
+    - save_labels: Boolean indicating whether to save text or not
     """
     
     # GET parameters
     if request.method == 'GET':
         #all_args = request.args # TODO: get all parameters in one line
-        source = request.args.get('url')
-        save_txt = request.args.get('save_txt')
+        source = request.args.get('source')
+        save_labels = request.args.get('save_labels')
 
     
     # POST parameters
@@ -242,7 +238,7 @@ def update_options(request):
         json_data = request.get_json() #Get the POSTed json
         json_data = json.dumps(json_data) # API receive a dictionary, so I have to do this to convert to string
         dict_data = json.loads(json_data) # Convert json to dictionary 
-        source = dict_data['url']
-        save_txt = dict_data.get('save_txt', None)        
+        source = dict_data['source']
+        save_labels = dict_data.get('save_labels', None)        
     
-    return source, save_txt
+    return source, save_labels

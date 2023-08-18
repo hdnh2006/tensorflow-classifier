@@ -1,17 +1,18 @@
 # Usage: pip install -r requirements.txt
 
 # Data libraries
-pandas==1.2.5
-numpy==1.19.3   
+pandas==2.0.3
+numpy==1.23.2
 
 # ML libraries
-tensorflow-cpu==2.5.*
-opencv-python==4.5.1.48
+tensorflow==2.10.0
+opencv-python>=4.5
 
 # Track experiments
 wandb
 
 # Deployment
+waitress==2.1.2
 Flask==2.3.2
 
 # editor

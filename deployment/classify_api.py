@@ -16,10 +16,13 @@ import argparse
 import os
 import sys
 import cv2
+import json
+import wandb
 import tensorflow as tf
 import pandas as pd
 from flask import Flask, render_template, Response, request
 from pathlib import Path
+from waitress import serve
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[1]  # root directory
@@ -51,7 +54,6 @@ def run(opt):
     Perform model inference on a set of images.
 
     Parameters:
-    - weights (str): Model weights.
     - source (str or Path): Path to the image source.
     - labels (str or Path): Path to the labels.
     - imgsz (int): Image size for inference.
@@ -67,7 +69,6 @@ def run(opt):
     None. Results are saved to the specified directory or displayed.
     """
     
-    weights= opt.weights
     source=opt.source
     labels=opt.labels
     imgsz=opt.imgsz
@@ -84,20 +85,21 @@ def run(opt):
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     is_file = Path(source).suffix[1:] in (IMG_FORMATS)
     is_url = source.lower().startswith(('http://', 'https://'))
+        
+    # Directories
+    save_dir = increment_path(Path(project) / name)  # increment run
+    (save_dir / 'labels' if save_labels else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
+    (ROOT / 'raw_images').mkdir(parents=True, exist_ok=True)  # make dir raw_images
+    
     if is_url and is_file:
-        source = check_file(source)  # download
+        source = check_file(source, raw_path = ROOT / 'raw_images' )  # download
     
     # Download labels file in case it is a url
     labels = str(labels)
     if labels.lower().startswith(('http://', 'https://')):
         labels = check_file(labels)
-        
-    # Directories
-    save_dir = increment_path(Path(project) / name)  # increment run
-    (save_dir / 'labels' if save_labels else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
 
     # Load model and labels
-    device = select_device(device)
     labels = pd.read_csv(labels).name.to_numpy()
     
     # Model is loaded outside of this function
@@ -129,15 +131,11 @@ def run(opt):
             save_path = str(save_dir / p.name)  # im.jpg
             txt_path = str(save_dir / 'labels' / p.stem) #+ ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
 
-            #s += '%gx%g ' % im.shape  # print string
-           
-
-            # Print results
-            #s += f"{', '.join(f'{names[j]} {prob[j]:.2f}' for j in top5i)}, "
+            # Top results
             top3i = prob.numpy().argsort()[::-1][0:3] # top 3 indices
 
             # Write results
-            text = '\n'.join(f'{prob[j]:.2f} {labels[j]}' for j in top3i)
+            text = '\n'.join(f'{prob[j]:.2f},{labels[j]}' for j in top3i)
             if save_img or view_img:  # Add bbox to image
                 annotate(im0, text, txt_color=(255, 255, 255))
             if save_labels:  # Write to file
@@ -157,37 +155,31 @@ def run(opt):
                     cv2.imwrite(save_path, im0)
 
         # Print time (inference-only)
-        logging.info(f'{s}{(t1-t0) * 1E3:.1f}ms')
+        logging.info(f'{s}{prob[top3i[0]]:.2f} {labels[top3i[0]]} {(t1-t0) * 1E3:.1f}ms') #filename + prob + class + time
 
-    # Print results
-    logging.info(f'Done. The entire process took ({time_synchronized() - init_time:.3f}s)')
-    if save_labels or save_img:
-        #s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
-        logging.info(f"Results saved to {save_dir}{s}")
-        
-        # This is done in order to be shown in a browser, save_txt will return json file, otherwise, an image in bytes
-        # if save_txt:
-        #     if os.path.exists(txt_path + '.txt'):
-        #         result = pd.read_csv(txt_path + '.txt', sep =" ",names = ["class","x","y","w","h","conf"], header = None)
-        #         result = result.to_json(orient="records")
-        #         result = json.loads(result)
+
+        # This is done in order to be shown in a browser, save_labels will return json file, otherwise, an image in bytes
+        if save_labels:
+            if os.path.exists(txt_path + '.txt'):
+                result = pd.read_csv(txt_path + '.txt', sep =",",names = ['conf', 'class'], header = None)
+                result = result.to_json(orient='records')
+                result = json.loads(result)
                 
-        #     else:
-        #         result = []
-        #     dict_result=dict()
-        #     dict_result["results"]=result
-        #     yield json.dumps(dict_result)
-        # else:
-        im0 = cv2.imencode('.jpg', im0)[1].tobytes()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + im0 + b'\r\n')
+            else:
+                result = []
+            dict_result=dict()
+            dict_result["results"]=result
+            yield json.dumps(dict_result)
+        else:
+            im0 = cv2.imencode('.jpg', im0)[1].tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + im0 + b'\r\n')
             
 
     # Print results
     logging.info(f'Done. The entire process took ({time_synchronized() - init_time:.3f}s)')
     if save_labels or save_img:
-        #s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
-        logging.info(f"Results saved to {save_dir}{s}")
+        logging.info(f"Results saved to {save_dir}")
 
 
 @app.route('/')
@@ -208,15 +200,17 @@ def video_feed():
         uploaded_file = request.files['myfile']
         source = 'test_public_123'+str(uploaded_file.filename)
         uploaded_file.save(source)
-        opt.save_labels = None
+        opt.save_labels = request.form.get('save_labels')
         opt.source = source
+    
+    
         
     return Response(run(opt), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default= 'hdnh2006/bird_classifier/model_w5cxp2z2:v0', help='model path of wandb or local')
+    parser.add_argument('--weights', type=str, default= 'hdnh2006/bird_classifier/model_w5cxp2z2:v0', help='model path of wandb or local path that contains .pb file')
     parser.add_argument('--source', type=str, default=ROOT / 'data/images', help='file/dir/URL/glob/screen/0(webcam)')
     parser.add_argument('--labels', type=str, default=ROOT / 'data/aiy_birds_V1_labelmap.csv', help='(optional) dataset.csv path or url')
     parser.add_argument('--imgsz', '--img', '--img-size', type=int, default=224, help='inference size h,w in case the model accept dynamic batch size')
@@ -224,9 +218,10 @@ def parse_opt():
     parser.add_argument('--view-img', action='store_true', help='show results')
     parser.add_argument('--save-labels', action='store_true', help='save results to *.txt')
     parser.add_argument('--nosave', action='store_true', help='do not save images')
-    parser.add_argument('--project', default=ROOT / 'runs/predict-cls', help='save results to project/name')
+    parser.add_argument('--project', default=ROOT / 'runs/predict', help='save results to project/name')
     parser.add_argument('--name', default='inference', help='save results to project/name')
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')
+    parser.add_argument('--port', default=5000, type=int, help='port deployment')
     opt = parser.parse_args()
     print(vars(opt))
     return opt
@@ -234,11 +229,18 @@ def parse_opt():
 if __name__ == '__main__':
     opt = parse_opt()
     
-    # Load model
-    with tf.device(opt.device):
-        model = load_model(opt.weights)
+    session = wandb.init()
     
-    #main(opt)
-
+    # Load model
+    device = select_device(opt.device)
+    with tf.device(device):
+        model = load_model(session, opt.weights)
+    
     # Run app
-    app.run(host="0.0.0.0", port=5000, debug=False) # Don't use debug=True, model will be loaded twice (https://stackoverflow.com/questions/26958952/python-program-seems-to-be-running-twice)
+    # Testing purposes
+    # app.run(host="0.0.0.0", port=opt.port, debug=False) # Don't use debug=True, model will be loaded twice (https://stackoverflow.com/questions/26958952/python-program-seems-to-be-running-twice)
+
+    # Production, avoid warning development env in Flask
+    serve(app, host="0.0.0.0", port=opt.port) 
+
+    session.finish()

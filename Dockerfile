@@ -1,8 +1,9 @@
 # Usage: docker build -t my_image .
-# Usage: docker run --gpus all -it my_image
+# Usage: docker run --gpus all -it -e WANDB_API_KEY=your_api_key my_image
+
 
 # Use an official TensorFlow runtime as a parent image with GPU support
-FROM tensorflow/tensorflow:2.5.0-gpu
+FROM tensorflow/tensorflow:2.10.0-gpu
 # FROM tensorflow/tensorflow:2.13.0-gpu
 
 
@@ -11,6 +12,9 @@ WORKDIR /app
 
 # Copy the current directory contents into the container at /app
 COPY . /app
+
+# Update and install some libraries
+#RUN apt-get update && apt install ffmpeg libsm6 libxext6 -y # Warning: It seems some endpoints from NVIDIA are currently broken
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --upgrade pip && pip install -r requirements.txt
