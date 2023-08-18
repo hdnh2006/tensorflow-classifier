@@ -106,6 +106,4 @@ b'{"results": [{"conf": 0.96, "class": "Microcarbo melanoleucos"}, {"conf": 0.0,
 
 ## About me and contact
 
-This code is based on the YOLOv5 from Ultralytics and it has been modified by Henry Navarro
- 
-If you want to know more about me, please visit my blog: henrynavarro.org.
+If you want to know more about me, please visit my blog: [henrynavarro.org](https://henrynavarro.org).
