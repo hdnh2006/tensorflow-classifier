@@ -47,7 +47,12 @@ A Dockerfile is provided to containerize the application. Build and run the Dock
 ```
 docker build -t tensorflow-classifier .
 docker run --gpus all -it -e WANDB_API_KEY=your_api_key tensorflow-classifier
+```
 
+You can also use the docker container from docker hub:
+
+```
+docker run --gpus all -it -e WANDB_API_KEY=your_api_key hdnh2006/tensorflow-classifier
 ```
 
 ## Usage
