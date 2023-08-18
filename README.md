@@ -14,7 +14,7 @@ A service for classifying birds using Tensorflow and Flask API.
 
 This repository contains code to register model, classify script and deploy service for a classifier model using TensorFlow. The Flask API allows for easy interfacing with the trained model.
 
-## Directory Structure
+## Directory Structure 📂
 
 - `data`: Directory for datasets.
 - `original_code`: Contains the initial version or reference code.
@@ -25,7 +25,7 @@ This repository contains code to register model, classify script and deploy serv
 - `classify.py`: Script for running classification inference on images.
 - `register_model.py`: Script for registering the trained model.
 
-## Setup
+## Setup 👨‍💻
 
 ### Requirements
 
@@ -40,7 +40,7 @@ To install these requirements, run:
 pip install -r requirements.txt
 ```
 
-### Docker
+### Docker 🐋
 
 A Dockerfile is provided to containerize the application. Build and run the Docker container using:
 
@@ -55,7 +55,7 @@ You can also use the docker container from docker hub:
 docker run --gpus all -it -e WANDB_API_KEY=your_api_key hdnh2006/tensorflow-classifier
 ```
 
-## Usage
+## Usage 🔥
 
 ### Classification
 
@@ -74,7 +74,7 @@ python register_model.py
 ```
 
 
-## Interactive implementation implemntation
+## Interactive implementation implementation 🌶️
 
 You can deploy the API able to label an interactive way.
 
