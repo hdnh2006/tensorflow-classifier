@@ -186,6 +186,6 @@ def main(opt):
 
 if __name__ == '__main__':
     opt = parse_opt()
-    session = wandb.init()
+    session = wandb.init('classifier-deployment')
     main(opt)
     session.finish()
