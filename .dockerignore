@@ -7,7 +7,6 @@ output
 coco
 storage.googleapis.com
 
-data/samples/*
 **/results*.csv
 *.zip
 *.tar.gz
