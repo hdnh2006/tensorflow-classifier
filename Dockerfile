@@ -1,5 +1,5 @@
-# Usage: docker build -t my_image .
-# Usage: docker run --gpus all -it -e WANDB_API_KEY=your_api_key my_image
+# Usage: docker build -t tensorflow-classifier .
+# Usage: docker run --gpus all -it -e WANDB_API_KEY=your_api_key tensorflow-classifier
 
 
 # Use an official TensorFlow runtime as a parent image with GPU support
@@ -14,7 +14,7 @@ WORKDIR /app
 COPY . /app
 
 # Update and install some libraries
-#RUN apt-get update && apt install ffmpeg libsm6 libxext6 -y # Warning: It seems some endpoints from NVIDIA are currently broken
+# RUN apt-get update && apt install ffmpeg libsm6 libxext6 -y # Warning: It seems some endpoints from NVIDIA are currently broken, run after container initializes.
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --upgrade pip && pip install -r requirements.txt
