@@ -47,8 +47,11 @@ b'{"results": [{"conf": 0.96, "class": "Microcarbo melanoleucos"}, {"conf": 0.0,
 ## 5. Public images
 
 You can provide a public image to the endpoint. The ling should end in `.jpg, .png, .jpeg, ...` or other common image formats as follows:
-`http://0.0.0.0:5000/classify?source=https://www.lyricbirdfood.com/media/1880/summer-tananger.jpg`
-
+```
+http://0.0.0.0:5000/classify?source=https://www.lyricbirdfood.com/media/1880/summer-tananger.jpg
+# or
+http://0.0.0.0:5000/classify?source=https://www.lyricbirdfood.com/media/1880/summer-tananger.jpg&save_labels=T # it will return a json
+```
 
 ## 6. Recommendation
 For the correct functioning of the application, use `client.py` from any IDE or terminal.
