@@ -15,7 +15,7 @@ pip install -r requirements.txt
 ## 2. Launch the Flask Application
 To start the application, run the `app.py` script using Python:
 ```
-python `classify_app.py` --device cpu --weights ...
+python `deployment/classify_app.py` --device cpu --weights ...
 ```
 
 You can specify the paths to the pre-trained model `--weights` option. If you don't provide these options, the script will use default paths.
