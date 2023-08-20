@@ -81,7 +81,7 @@ You can deploy the API able to label an interactive way.
 Run:
 
 ```bash
-$ python detect_api.py --device cpu # to run into cpu (by default is gpu)
+$ python detect_api.py --device cpu # by default is cpu, you can choose 0,1,2 if you want to choose gpu depending on the number of gpus
 ```
 Open the application in any browser 0.0.0.0:5000 and upload your image or video as is shown in video above.
 
@@ -89,9 +89,14 @@ Open the application in any browser 0.0.0.0:5000 and upload your image or video 
 ## How to use the API
 
 ### Interactive way
-Just open your favorite browser and go to 0.0.0.0:5000 and intuitevely load the image you want to label and press the buttom "Upload image".
+Just open your favorite browser and go to http://0.0.0.0:5000 and intuitevely load the image you want to label and press the buttom "Upload image".
 
-The API will return the image or video labeled.
+The API will return the image labeled.
+
+### Local testing inside specific folder
+Just open your favorite browser and go to http://0.0.0.0:5000/classify?source=data/images will inference all the images inside the folder `data/images`.
+
+The API will return the images labeled.
 
 ### Call from terminal or python program
 The `client.py` code provides several example about how the API can be called. A very common way to do it is to call a public image from url and to get the coordinates of the bounding boxes:
