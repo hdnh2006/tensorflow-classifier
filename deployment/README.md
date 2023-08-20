@@ -2,7 +2,7 @@
 This script launches a Flask application that serves an API endpoint for uploading images. The application uses pre-trained model to inference over the image.
 
 Files
-- `classify_app.py`: This script includes the Flask application.
+- `classify_api.py`: This script includes the Flask application.
 
 # Usage
 
@@ -13,9 +13,9 @@ pip install -r requirements.txt
 ```
 
 ## 2. Launch the Flask Application
-To start the application, run the `app.py` script using Python:
+To start the application, run the `classify_api.py` script using Python:
 ```
-python `deployment/classify_app.py` --device cpu --weights ...
+python `deployment/classify_api.py` --device cpu --weights ...
 ```
 
 You can specify the paths to the pre-trained model `--weights` option. If you don't provide these options, the script will use default paths.
