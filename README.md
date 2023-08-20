@@ -81,7 +81,7 @@ You can deploy the API able to label an interactive way.
 Run:
 
 ```bash
-$ python detect_api.py --device cpu # by default is cpu, you can choose 0,1,2 if you want to choose gpu depending on the number of gpus
+$ python deployment/classify_api.py --device cpu # by default is cpu, you can choose 0,1,2 if you want to choose gpu depending on the number of gpus
 ```
 Open the application in any browser 0.0.0.0:5000 and upload your image or video as is shown in video above.
 
