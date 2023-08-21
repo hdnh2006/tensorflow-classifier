@@ -114,6 +114,17 @@ And you will get a json with the following data:
 b'{"results": [{"conf": 0.96, "class": "Microcarbo melanoleucos"}, {"conf": 0.0, "class": "Piranga rubra"}, {"conf": 0.0, "class": "Piranga olivacea"}]}'
 ```
 
+## TODO
+
+- [ ] **Calibration or Half Precision**: Implement half-precision to significantly reduce the time required for inference. Alternatively, consider using INT8 quantization for even faster inference.
+  
+- [ ] **Export to OpenVino for CPU Deployment**: Add functionality to export the model to OpenVino format, optimizing it for deployments on CPU.
+  
+- [ ] **Export to TensorRT for GPU Deployment**: Add functionality to export the model to TensorRT format, optimizing it for deployments on GPU.
+
+- [ ] **Add Grad-CAM for Model Explainability**: Integrate Grad-CAM (Gradient-weighted Class Activation Mapping) to provide insights into which regions of the image the model focuses on during the classification process.
+
+
 ## About me and contact
 
 If you want to know more about me, please visit my blog: [henrynavarro.org](https://henrynavarro.org).
