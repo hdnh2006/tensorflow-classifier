@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="450" src="assets/Flask_logo.svg">
+  <img width="450" src="assets/logos.jpg">
 </div>
 
 # Tensorflow classifier service using Flask.

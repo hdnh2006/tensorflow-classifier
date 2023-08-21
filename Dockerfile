@@ -14,7 +14,7 @@ WORKDIR /app
 COPY . /app
 
 # Update and install some libraries
-RUN apt-get update && apt install ffmpeg libsm6 libxext6 -y # Warning: It seems some endpoints from NVIDIA are currently broken, run after container initializes.
+RUN apt-get update && apt install ffmpeg libsm6 libxext6 -y
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --upgrade pip && pip install -r requirements.txt
